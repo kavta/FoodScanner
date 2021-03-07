@@ -209,7 +209,7 @@ const Mainpage = ({ navigation }) => {
         }
       >
         <View style={styles.TopNav}>
-          <Text style={{ fontSize: 20 }}>nutritionalyzer</Text>
+          <Text style={{ fontSize: 20 }}>Nutritionalyzer</Text>
         </View>
 
         <Text style={styles.Heading1}>Want to know food's{'\n'} calorie?</Text>
