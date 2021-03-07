@@ -90,10 +90,22 @@ const styles = StyleSheet.create({
 });
 
 const Mainpage = ({ navigation }) => {
-  const [Svalue, setValue] = useState('');
   const [isFetching, setisFetching] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [photos, setPhotos] = useState(null);
+  const [uri, setSelectImage] = useState(null);
+  const initial = useRef(true);
+
+  useEffect(() => {
+    if (initial.current) {
+      initial.current = false;
+      return;
+    }
+
+    if (uri !== null) {
+      handleImageUpload();
+    }
+  }, [uri]);
 
   const wait = (timeout) => {
     return new Promise((resolve) => {
@@ -103,6 +115,7 @@ const Mainpage = ({ navigation }) => {
 
   const takeImage = async () => {
     let { granted } = await ImagePicker.requestCameraPermissionsAsync();
+
     if (granted) {
       let data = await ImagePicker.launchCameraAsync();
       setSelectImage(data.uri);
@@ -110,8 +123,10 @@ const Mainpage = ({ navigation }) => {
       Alert.alert('Access denied');
     }
   };
+
   const openImagePermission = async () => {
     let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
     if (permissionResult.granted === false) {
       alert('Required Permission to access media.');
       return;
@@ -121,22 +136,17 @@ const Mainpage = ({ navigation }) => {
     setSelectImage(pickerResult.uri);
   };
 
-  const [uri, setSelectImage] = useState(null);
-  const initial = useRef(true);
-
-  useEffect(() => {
-    if (initial.current) {
-      initial.current = false;
-      return;
-    }
-    handleImageUpload();
-  }, [uri]);
-
   const handleImageUpload = async () => {
+    const uriPartsBySlash = uri.split('/');
+    const uriPartsByDot = uri.split('.');
+
+    const fileName = uriPartsBySlash[uriPartsBySlash.length - 1];
+    const fileType = uriPartsByDot[uriPartsByDot.length - 1];
+
     const image = {
       uri,
-      type: `image/jpg`,
-      name: `test.jpg`,
+      type: `image/${fileType}`,
+      name: fileName,
     };
 
     try {
@@ -145,40 +155,39 @@ const Mainpage = ({ navigation }) => {
       formData.append('upload_preset', 'food_recognition');
       formData.append('cloud_name', 'prasanga');
 
+      setisFetching(true);
       const response = await axios.post(
         'https://api.cloudinary.com/v1_1/prasanga/image/upload',
         formData
       );
-      setisFetching(true);
+
       // Using REST API
       const res = await axios.get(
         `http://nutritionalyzer.herokuapp.com/api/v1/process_image?uri=${response.data.url}`
       );
-      console.log(res.data);
       setisFetching(false);
-      if (isFetching === false) {
-        navigation.navigate('Suggested', {
-          uri,
-          ImageName: res?.data?.predictions[0]?.name,
-          ImageName1: res?.data?.predictions[1]?.name,
-          ImageName2: res?.data?.predictions[2]?.name,
-        });
-      }
+
+      navigation.navigate('Suggested', {
+        uri,
+        ImageName: res?.data?.predictions[0]?.name,
+        ImageName1: res?.data?.predictions[1]?.name,
+        ImageName2: res?.data?.predictions[2]?.name,
+      });
     } catch (e) {
-      console.log(e.message);
-      alert('Something went wrong');
+      setisFetching(false);
+      Alert.alert('Something went wrong', e.message);
     }
   };
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     wait(1000).then(() => {
-      setValue('');
       setPhotos(null);
       setSelectImage(null);
       setRefreshing(false);
     });
   }, []);
+
   if (isFetching) {
     return (
       <View>
@@ -204,13 +213,16 @@ const Mainpage = ({ navigation }) => {
         </View>
 
         <Text style={styles.Heading1}>Want to know food's{'\n'} calorie?</Text>
+
         <Text style={{ textAlign: 'center', fontSize: 16, margin: 20 }}>
           Check food's Calories, carbohydrate, Proteins
           {'\n'} &{'\n'} Fat
         </Text>
+
         <View style={{ margin: 10 }}>
           <Image source={Scanner} style={{ height: 230, width: 200 }} />
         </View>
+
         <View style={{ margin: 10 }}>
           <Text style={{ textAlign: 'center', fontSize: 16, margin: 10 }}>
             Scan your image to get the Calories
@@ -220,6 +232,7 @@ const Mainpage = ({ navigation }) => {
         <View style={{ marginTop: 15 }}>
           <Camera photos={photos} takeImage={takeImage} />
         </View>
+
         <View style={{ marginTop: 15 }}>
           <GalleryPage
             navigation={navigation}
