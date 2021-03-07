@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { View, Image, TouchableOpacity } from 'react-native';
-import CameraImg from '../assets/camera.png';
+import { View, Image, TouchableOpacity, Text } from 'react-native';
+
+import { LinearGradient } from 'expo-linear-gradient';
 
 const styles = StyleSheet.create({
   container: {
@@ -18,13 +19,32 @@ const CameraPage = ({ takeImage, photos }) => {
   return (
     <View style={StyleSheet.container}>
       <TouchableOpacity onPress={takeImage}>
-        <Image source={CameraImg} style={styles.icon} />
+        <View>
+          <LinearGradient
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 0 }}
+            colors={['#1A9C27', '#0EAF9C']}
+            style={{
+              height: 50,
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: 300,
+              borderRadius: 20,
+              shadowColor: 'black',
+              shadowOpacity: 0.26,
+              shadowRadius: 10,
+              elevation: 5,
+            }}
+          >
+            <Text style={{ color: '#ffffff', zIndex: 5 }}>Scan Image</Text>
+          </LinearGradient>
+        </View>
       </TouchableOpacity>
 
       {photos ? (
         <Image
           source={{ uri: photos.localuri }}
-          style={{ width: 100, height: 100 }}
+          style={{ width: 80, height: 80, alignSelf: 'center' }}
         />
       ) : null}
     </View>

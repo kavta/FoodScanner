@@ -1,10 +1,11 @@
 import React from 'react';
+
+import axios from 'axios';
 import {
   View,
   Text,
   Image,
   StyleSheet,
-  ImageBackground,
   SafeAreaView,
   TouchableOpacity,
   Alert,
@@ -12,8 +13,7 @@ import {
 import { useRoute } from '@react-navigation/native';
 import AnimatedProgressWheel from 'react-native-progress-wheel';
 import { AntDesign } from '@expo/vector-icons';
-import dummyImage from './../assets/favicon.png';
-import wooden from './../assets/wooden.png';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const styles = StyleSheet.create({
   displayImage: {
@@ -22,12 +22,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   background: {
-    backgroundColor: '#71a61c',
+    backgroundColor: '#ffffff',
+    height: '100%',
+  },
+  TopBackgroud: {
+    borderRadius: 40,
+    top: -45,
+    position: 'absolute',
+    width: '100%',
+    height: 345,
   },
   ImageIcon: {
     zIndex: 1,
     justifyContent: 'center',
-    top: 50,
+    top: 130,
     alignItems: 'center',
     position: 'relative',
     backgroundColor: '#ffffff',
@@ -49,30 +57,48 @@ const styles = StyleSheet.create({
     shadowRadius: 13.16,
     elevation: 2,
   },
-  WhiteBackground: {
-    backgroundColor: '#403f3a',
-    borderRadius: 35,
-    top: 5,
-    width: '100%',
-    padding: 14,
+  ListBackground: {
+    paddingLeft: 16,
+    paddingRight: 16,
+    display: 'flex',
+    flexDirection: 'row',
+    height: 70,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: 'auto',
+    borderRadius: 10,
+    marginTop: 20,
+    shadowColor: 'black',
+    shadowOpacity: 0.26,
+    shadowRadius: 10,
+    elevation: 5,
+    backgroundColor: '#ffffff',
+    marginBottom: 10,
+    marginLeft: 20,
+    marginRight: 20,
   },
-  verticalLine: {
-    height: 100,
-    width: 5,
-    backgroundColor: 'gray',
-    position: 'relative',
+  chartContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  nutrientsName: { fontSize: 20, color: '#ffffff' },
+  foodNameList: {
+    color: '#000000',
+    fontSize: 20,
+    textAlign: 'left',
+  },
+  nutrientsName: { fontSize: 20, color: '#000000' },
   nutrientsChart: {
     marginLeft: 25,
     marginRight: 25,
-    marginTop: 50,
+    marginTop: 40,
   },
   nutrientsChartContainer: {
     display: 'flex',
     justifyContent: 'space-evenly',
     flexWrap: 'wrap',
     paddingBottom: 60,
+
     flexDirection: 'row',
   },
   pageName: {
@@ -80,30 +106,62 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     marginTop: 20,
     fontSize: 30,
-    color: '#ffffff',
+    color: '#000000',
   },
   foodName: {
     fontSize: 28,
-    marginTop: 85,
+    marginTop: 140,
     textAlign: 'center',
-    color: '#ffffff',
+    color: '#000000',
   },
-  data: { color: '#ffffff' },
+  calorieData: {
+    color: 'yellow',
+    fontSize: 20,
+    paddingRight: 12,
+    textAlign: 'left',
+  },
+  proteinData: {
+    color: 'green',
+    fontSize: 20,
+    paddingRight: 12,
+    textAlign: 'left',
+  },
+  carboData: {
+    color: 'black',
+    fontSize: 20,
+    paddingRight: 12,
+    textAlign: 'left',
+  },
+  fiberData: {
+    color: 'blue',
+    fontSize: 20,
+    paddingRight: 12,
+    textAlign: 'left',
+  },
 });
 
 const Display = ({ navigation }) => {
   const route = useRoute();
+  // console.log(route);
+  // console.log(route?.params?.props);
   const calorie = route?.params?.nutrionvalue?.nutrients?.ENERC_KCAL || 50;
   const fat = route?.params?.nutrionvalue?.nutrients?.FAT || 40;
   const carbo = route?.params?.nutrionvalue?.nutrients?.CHOCDF || 20;
   const protein = route?.params?.nutrionvalue?.nutrients?.PROCNT || 15;
   const total = calorie + fat + carbo + protein;
-  const handlePress = () => navigation.navigate('Nutritionalyzer');
+  const chartSize = 50;
+  const animationDuration = 3000;
+
+  const handlePress = () => navigation.navigate('Suggested');
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.background}>
-        <ImageBackground source={wooden} style={{ resizeMode: 'cover' }}>
+        <View>
+          <LinearGradient
+            colors={['#0B80A5', '#373F5F']}
+            style={styles.TopBackgroud}
+          />
           <View style={{ alignItems: 'center' }}>
             <TouchableOpacity
               onPress={handlePress}
@@ -114,25 +172,92 @@ const Display = ({ navigation }) => {
                 position: 'relative',
               }}
             >
-              <AntDesign name="left" size={24} color="#ffffff" />
+              <AntDesign name="arrowleft" size={30} color="#ffffff" />
             </TouchableOpacity>
-            <Text style={styles.pageName}>FoodDetails</Text>
           </View>
+
           <View style={styles.ImageIcon}>
             <Image
               // source={dummyImage}-->for dummy image
-              source={{ uri: route?.params?.nutrionvalue?.image }}
+              source={{
+                uri: route?.params?.Photo,
+              }}
               style={styles.displayImage}
               resizeMode="cover"
             />
           </View>
 
-          <View style={styles.WhiteBackground}>
-            <Text style={styles.foodName}>{route?.params?.Svalue}</Text>
+          <View>
+            <Text style={styles.foodName}>{route?.params?.props}</Text>
 
-            <View style={styles.nutrientsChartContainer}>
+            <View style={styles.ListBackground}>
+              <Text style={styles.foodNameList}>Calorie</Text>
+
+              <View style={styles.chartContainer}>
+                <Text style={styles.calorieData}>{calorie}</Text>
+                <AnimatedProgressWheel
+                  size={chartSize}
+                  width={10}
+                  color="#AA0000"
+                  progress={(calorie / total) * 100}
+                  backgroundColor="#F0F0F0"
+                  animateFromValue={0}
+                  duration={animationDuration}
+                />
+              </View>
+            </View>
+
+            <View style={styles.ListBackground}>
+              <Text style={styles.foodNameList}>Protein</Text>
+
+              <View style={styles.chartContainer}>
+                <Text style={styles.proteinData}>{protein}</Text>
+                <AnimatedProgressWheel
+                  size={chartSize}
+                  width={10}
+                  color="#FFB300"
+                  progress={(protein / total) * 100}
+                  backgroundColor="#e8dd8e"
+                  animateFromValue={0}
+                  duration={animationDuration}
+                />
+              </View>
+            </View>
+
+            <View style={styles.ListBackground}>
+              <Text style={styles.foodNameList}>Carbohydrate</Text>
+              <View style={styles.chartContainer}>
+                <Text style={styles.carboData}>{carbo} </Text>
+                <AnimatedProgressWheel
+                  size={chartSize}
+                  width={10}
+                  color="#4CAF50"
+                  progress={(carbo / total) * 100}
+                  backgroundColor="#F0F0F0"
+                  animateFromValue={0}
+                  duration={animationDuration}
+                />
+              </View>
+            </View>
+
+            <View style={styles.ListBackground}>
+              <Text style={styles.foodNameList}>Fat</Text>
+              <View style={styles.chartContainer}>
+                <Text style={styles.fiberData}>{fat} </Text>
+                <AnimatedProgressWheel
+                  size={chartSize}
+                  width={10}
+                  color="#1E57B5"
+                  progress={(fat / total) * 100}
+                  backgroundColor="#F0F0F0"
+                  animateFromValue={0}
+                  duration={animationDuration}
+                />
+              </View>
+            </View>
+            {/* <View style={styles.nutrientsChartContainer}>
               <View style={styles.nutrientsChart}>
-                <Text style={styles.nutrientsName}>calorie</Text>
+                <Text style={styles.nutrientsName}>Calorie</Text>
                 <Text style={styles.data}>{calorie}</Text>
                 <AnimatedProgressWheel
                   size={100}
@@ -185,10 +310,10 @@ const Display = ({ navigation }) => {
                   duration={4000}
                 />
               </View>
-            </View>
+            </View> */}
           </View>
           {/* </View> */}
-        </ImageBackground>
+        </View>
       </View>
     </SafeAreaView>
   );

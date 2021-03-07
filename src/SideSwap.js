@@ -16,21 +16,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   carousel: {
-    width: 250,
+    width: '100%',
+    backgroundColor: '#d5ed4a',
     maxHeight: 500,
   },
   cardContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 50,
     width: 200,
-    height: 300,
+    height: 200,
   },
 });
 
 const SideSwap = () => {
   return (
     <View style={styles.container}>
-      <Text>Food you may Like!!</Text>
       <SideSwipe
         data={data}
         style={styles.carousel}
@@ -38,9 +38,9 @@ const SideSwap = () => {
         threshold={120}
         contentOffset={0}
         renderItem={({ item }) => (
-          <View style={{ width, paddingHorizontal: 10 }}>
+          <View style={{ paddingHorizontal: 10 }}>
             <Card title="Local Modules" Style={styles.cardContainer}>
-              <Image source={item} style={{ height: 200, width: 180 }} />
+              <Image source={item} style={{ height: 200, width: 280 }} />
             </Card>
           </View>
         )}

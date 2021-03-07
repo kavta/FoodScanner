@@ -11,20 +11,22 @@ import {
   Alert,
   Image,
 } from 'react-native';
+
 import { ScrollView } from 'react-native-gesture-handler';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import * as ImagePicker from 'expo-image-picker';
 import Camera from './CameraPage';
 import GalleryPage from './GalleryPage';
-import { Feather } from '@expo/vector-icons';
+import Scanner from '../assets/Scanner.png';
+
 import Analyzing from './Analyzing';
-import SideSwap from './SideSwap';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#ffffff',
   },
   Sliderimage: {
     // backgroundColor: '#bcd4c0',
@@ -34,8 +36,8 @@ const styles = StyleSheet.create({
   },
   Heading1: {
     textAlign: 'center',
-    fontSize: 25,
-    marginTop: 20,
+    fontSize: 30,
+    marginTop: 35,
   },
   textBar: {
     height: 50,
@@ -54,6 +56,23 @@ const styles = StyleSheet.create({
     width: 30,
     marginTop: 25,
   },
+  TopNav: {
+    height: 45,
+
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 350,
+    borderRadius: 5,
+    marginTop: 10, // borderWidth: 1,
+    shadowColor: 'black',
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 3,
+    backgroundColor: 'white',
+    marginTop: 50,
+    marginLeft: 10,
+    marginRight: 10,
+  },
   buttonContainer: {
     backgroundColor: '#222',
     borderRadius: 5,
@@ -63,6 +82,10 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 20,
     color: '#fff',
+  },
+  ButtonGradient: {
+    backgroundColor: '#f4f4f4',
+    borderRadius: 5,
   },
 });
 
@@ -82,11 +105,20 @@ const Mainpage = ({ navigation }) => {
     let { granted } = await ImagePicker.requestCameraPermissionsAsync();
     if (granted) {
       let data = await ImagePicker.launchCameraAsync();
-      console.log(data);
-      setPhotos({ localuri: data.uri });
+      setSelectImage(data.uri);
     } else {
       Alert.alert('Access denied');
     }
+  };
+  const openImagePermission = async () => {
+    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert('Required Permission to access media.');
+      return;
+    }
+    let pickerResult = await ImagePicker.launchImageLibraryAsync();
+    console.log(pickerResult.uri);
+    setSelectImage(pickerResult.uri);
   };
 
   const [uri, setSelectImage] = useState(null);
@@ -103,7 +135,7 @@ const Mainpage = ({ navigation }) => {
   const handleImageUpload = async () => {
     const image = {
       uri,
-      type: `test/jpg`,
+      type: `image/jpg`,
       name: `test.jpg`,
     };
 
@@ -117,45 +149,25 @@ const Mainpage = ({ navigation }) => {
         'https://api.cloudinary.com/v1_1/prasanga/image/upload',
         formData
       );
-
-      // Using GraphQL API
-      const res = await axios({
-        url: `https://nutritionalyzer.herokuapp.com/graphql`,
-        method: 'post',
-        data: {
-          query: `
-            query{
-              predictions(imgUrl: "${response.data.url}"){
-                name
-              }
-            }
-            `,
-        },
-      });
-
-      // const { data } = await axios.get(
-      //   `https://api.edamam.com/api/food-database/parser?app_id=358a310d&app_key=db4c503169b2e46ba80e9689f1cc3030&ingr=${ImageName}`
-      // );
-
-      navigation.navigate('Suggested', {
-        ImageName: res?.data?.data?.predictions[0]?.name,
-        ImageName1: res?.data?.data?.predictions[1]?.name,
-        ImageName2: res?.data?.data?.predictions[2]?.name,
-      });
+      setisFetching(true);
+      // Using REST API
+      const res = await axios.get(
+        `http://nutritionalyzer.herokuapp.com/api/v1/process_image?uri=${response.data.url}`
+      );
+      console.log(res.data);
+      setisFetching(false);
+      if (isFetching === false) {
+        navigation.navigate('Suggested', {
+          uri,
+          ImageName: res?.data?.predictions[0]?.name,
+          ImageName1: res?.data?.predictions[1]?.name,
+          ImageName2: res?.data?.predictions[2]?.name,
+        });
+      }
     } catch (e) {
       console.log(e.message);
       alert('Something went wrong');
     }
-  };
-
-  const openImagePermission = async () => {
-    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      alert('Required Permission to access media.');
-      return;
-    }
-    let pickerResult = await ImagePicker.launchImageLibraryAsync();
-    setSelectImage(pickerResult.uri);
   };
 
   const onRefresh = useCallback(() => {
@@ -167,77 +179,48 @@ const Mainpage = ({ navigation }) => {
       setRefreshing(false);
     });
   }, []);
-
-  const handleChange = (e) => {
-    setValue(e);
-  };
-
-  const handleSearch = async () => {
-    try {
-      setisFetching(true);
-
-      const { data } = await axios.get(
-        `https://api.edamam.com/api/food-database/parser?app_id=358a310d&app_key=db4c503169b2e46ba80e9689f1cc3030&ingr=${Svalue}`
-      );
-      setisFetching(false);
-      if (isFetching === false) {
-        navigation.navigate('FoodDetails', {
-          nutrionvalue: data?.parsed[0]?.food,
-          // nutrionvalue: {},-->for dummy data
-          Svalue,
-        });
-      }
-    } catch (e) {
-      console.warn(e);
-    }
-  };
-  if (isFetching === true) {
+  if (isFetching) {
     return (
       <View>
         <Analyzing />
       </View>
     );
   }
+
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#ffffff', '#71a61c']}
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          height: 900,
-        }}
-      />
+      {/* <Image
+        source={chicken}
+        style={{ width: 150, height: 150, opacity: 0.5, position: 'absolute' }}
+      /> */}
       <ScrollView
-        contentContainerStyle={{ alignItems: 'center' }}
+        contentContainerStyle={{ alignItems: 'center', paddingTop: 10 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View style={styles.Sliderimage}>
-          <SideSwap />
+        <View style={styles.TopNav}>
+          <Text style={{ fontSize: 20 }}>nutritionalyzer</Text>
         </View>
 
-        <Text style={styles.Heading1}>Want to know food's calorie?</Text>
-        <Text style={{ textAlign: 'center', margin: 10 }}>
+        <Text style={styles.Heading1}>Want to know food's{'\n'} calorie?</Text>
+        <Text style={{ textAlign: 'center', fontSize: 16, margin: 20 }}>
           Check food's Calories, carbohydrate, Proteins
           {'\n'} &{'\n'} Fat
         </Text>
-        <TextInput
-          style={styles.textBar}
-          placeholder="Search Food"
-          onChangeText={handleChange}
-          value={Svalue}
-        />
+        <View style={{ margin: 10 }}>
+          <Image source={Scanner} style={{ height: 230, width: 200 }} />
+        </View>
+        <View style={{ margin: 10 }}>
+          <Text style={{ textAlign: 'center', fontSize: 16, margin: 10 }}>
+            Scan your image to get the Calories
+          </Text>
+        </View>
 
-        <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
-          <Feather name="search" size={24} color="black" />
-        </TouchableOpacity>
-
-        <View>
+        <View style={{ marginTop: 15 }}>
           <Camera photos={photos} takeImage={takeImage} />
+        </View>
+        <View style={{ marginTop: 15 }}>
           <GalleryPage
             navigation={navigation}
             uri={uri}

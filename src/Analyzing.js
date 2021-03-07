@@ -8,13 +8,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 'auto',
-    height: 800,
+    height: 900,
   },
 });
 const Analyzing = () => {
   return (
     <View style={styles.Container}>
-      <ActivityIndicator size="large" />
+      <ActivityIndicator size="large" color="white" />
       <Text style={{ color: '#ffffff' }}> Analyzing image</Text>
     </View>
   );

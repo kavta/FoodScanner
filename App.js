@@ -21,7 +21,11 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Nutritionalyzer">
-        <Stack.Screen name="Nutritionalyzer" component={Mainpage} />
+        <Stack.Screen
+          name="Nutritionalyzer"
+          component={Mainpage}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="Suggested"
           component={SuggestPage}
