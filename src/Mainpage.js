@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   Alert,
   Image,
+  LogBox,
 } from 'react-native';
 
 import { ScrollView } from 'react-native-gesture-handler';
@@ -96,6 +97,7 @@ const Mainpage = ({ navigation }) => {
   const [uri, setSelectImage] = useState(null);
   const initial = useRef(true);
 
+  LogBox.ignoreAllLogs(true);
   useEffect(() => {
     if (initial.current) {
       initial.current = false;
@@ -166,6 +168,7 @@ const Mainpage = ({ navigation }) => {
         `http://nutritionalyzer.herokuapp.com/api/v1/process_image?uri=${response.data.url}`
       );
       setisFetching(false);
+      // console.log(res);
 
       navigation.navigate('Suggested', {
         uri,

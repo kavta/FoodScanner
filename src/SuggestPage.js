@@ -104,21 +104,21 @@ const SuggestPage = ({ navigation }) => {
     // console.log(props);
     // console.log(Photo);
     try {
-      // setisFetching(true);
+      setisFetching(true);
 
-      // const { data } = await axios.get(
-      //   `https://api.edamam.com/api/food-database/parser?app_id=358a310d&app_key=db4c503169b2e46ba80e9689f1cc3030&ingr=${props}`
-      // );
-      // setisFetching(false);
-      // if (isFetching === false) {
-      navigation.navigate('FoodDetails', {
-        // nutrionvalue: data?.parsed[0]?.food,
-        // -->for dummy data
-        nutrionvalue: {},
-        props,
-        Photo,
-      });
-      // }
+      const { data } = await axios.get(
+        `https://api.edamam.com/api/food-database/parser?app_id=358a310d&app_key=db4c503169b2e46ba80e9689f1cc3030&ingr=${props}`
+      );
+      setisFetching(false);
+      if (isFetching === false) {
+        navigation.navigate('FoodDetails', {
+          nutrionvalue: data?.parsed[0]?.food,
+          // -->for dummy data
+          // nutrionvalue: {},
+          props,
+          Photo,
+        });
+      }
     } catch (e) {
       console.warn(e);
     }

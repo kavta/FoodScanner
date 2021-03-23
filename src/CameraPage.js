@@ -23,7 +23,7 @@ const CameraPage = ({ takeImage, photos }) => {
           <LinearGradient
             start={{ x: 1, y: 0 }}
             end={{ x: 0, y: 0 }}
-            colors={['#1A9C27', '#0EAF9C']}
+            colors={['#373F5F', '#0B80A5']}
             style={{
               height: 50,
               justifyContent: 'center',

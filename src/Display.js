@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     color: 'yellow',
     fontSize: 20,
     paddingRight: 12,
+    color: '#AA0000',
     textAlign: 'left',
   },
   proteinData: {
@@ -125,9 +126,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     paddingRight: 12,
     textAlign: 'left',
+    color: '#FFB300',
   },
   carboData: {
-    color: 'black',
+    color: '#4CAF50',
     fontSize: 20,
     paddingRight: 12,
     textAlign: 'left',
@@ -217,7 +219,7 @@ const Display = ({ navigation }) => {
                   width={10}
                   color="#FFB300"
                   progress={(protein / total) * 100}
-                  backgroundColor="#e8dd8e"
+                  backgroundColor="#F0F0F0"
                   animateFromValue={0}
                   duration={animationDuration}
                 />
